@@ -1,0 +1,31 @@
+{
+  "expo": {
+    "name": "Parkz Keeper",
+    "displayName": "Parkz Keeper",
+    "slug": "parkz-keeper-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#6200ee",
+      "resizeMode": "contain"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.parkz.keeper"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#6200ee"
+      },
+      "package": "com.parkz.keeper"
+    },
+    "plugins": [
+      "expo-secure-store"
+    ]
+  }
+}
+
