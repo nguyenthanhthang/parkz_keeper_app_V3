@@ -26,11 +26,13 @@ import {
 } from '../../store/slices/businessProfileSlice';
 import { CreateBusinessProfileRequest } from '../../types';
 import { useAuth } from '../../hooks/useAuth';
+import { useToast } from '../../hooks/useToast';
 
 export default function BusinessProfileScreen() {
   const navigation = useNavigation();
   const dispatch = useDispatch<AppDispatch>();
   const { user } = useAuth();
+  const toast = useToast();
   const { businessProfile, isLoading, error } = useSelector(
     (state: RootState) => state.businessProfile
   );
@@ -80,23 +82,23 @@ export default function BusinessProfileScreen() {
 
   useEffect(() => {
     if (error) {
-      Alert.alert('Lỗi', error);
+      toast.showError(error);
       dispatch(clearError());
     }
-  }, [error, dispatch]);
+  }, [error, dispatch, toast]);
 
   const validateForm = useCallback((): boolean => {
     if (!businessName.trim()) {
-      Alert.alert('Lỗi xác thực', 'Vui lòng nhập tên doanh nghiệp');
+      toast.showError('Vui lòng nhập tên doanh nghiệp');
       return false;
     }
     // Email validation nếu có
     if (email && email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      Alert.alert('Lỗi xác thực', 'Email không hợp lệ');
+      toast.showError('Email không hợp lệ');
       return false;
     }
     return true;
-  }, [businessName, email]);
+  }, [businessName, email, toast]);
 
   const handleCreateProfile = useCallback(async () => {
     if (!validateForm()) return;
@@ -114,12 +116,12 @@ export default function BusinessProfileScreen() {
       };
 
       await dispatch(createBusinessProfile(createData)).unwrap();
-      Alert.alert('Thành công', 'Tạo hồ sơ doanh nghiệp thành công');
+      toast.showSuccess('Tạo hồ sơ doanh nghiệp thành công');
       
       // Reload profile sau khi tạo
       dispatch(getBusinessProfileByManager(managerId));
     } catch (err: any) {
-      Alert.alert('Lỗi', err.message || 'Tạo hồ sơ doanh nghiệp thất bại');
+      toast.showError(err.message || 'Tạo hồ sơ doanh nghiệp thất bại');
     }
   }, [
     validateForm,

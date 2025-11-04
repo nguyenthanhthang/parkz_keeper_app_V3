@@ -10,6 +10,8 @@ export interface JWTPayload {
   email?: string;
   role?: string;
   phone?: string;
+  parkingId?: number | string; // ID bãi đỗ (có thể là số hoặc chuỗi trong JWT)
+  parkingName?: string; // Tên bãi đỗ
   [key: string]: any;
 }
 

@@ -4,7 +4,7 @@ import axios, {
   AxiosResponse,
   AxiosError,
 } from "axios";
-import { API_BASE_URL } from "../../utils/constants";
+import { API_BASE_URL, ENABLE_API_LOGS } from "../../utils/constants";
 import { tokenStorage } from "../../utils/storage";
 
 class ApiClient {
@@ -33,12 +33,20 @@ class ApiClient {
     this.client.interceptors.request.use(
       async (config) => {
         const token = await tokenStorage.getToken();
+        
+        // DEV ONLY: Skip API calls when using mock token
+        if (__DEV__ && token === 'mock_token_dev_only') {
+          // Return a rejected promise to bypass the actual API call
+          // Individual API functions will handle this and return mock data
+          return config;
+        }
+        
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
 
-        // Log request in development
-        if (__DEV__) {
+        // Log request in development (toggle-able)
+        if (__DEV__ && ENABLE_API_LOGS) {
           const fullUrl =
             config.url +
             (config.params
@@ -63,8 +71,8 @@ class ApiClient {
     // Response interceptor - Handle errors globally
     this.client.interceptors.response.use(
       (response: AxiosResponse) => {
-        // Log response in development
-        if (__DEV__) {
+        // Log response in development (toggle-able)
+        if (__DEV__ && ENABLE_API_LOGS) {
           console.log("API Response:", {
             status: response.status,
             url: response.config.url,
@@ -83,8 +91,8 @@ class ApiClient {
           console.log("Unauthorized - Token expired");
         }
 
-        // Log error in development with more details
-        if (__DEV__) {
+        // Log error in development with more details (toggle-able)
+        if (__DEV__ && ENABLE_API_LOGS) {
           console.error("API Error:", {
             status: error.response?.status,
             url: error.config?.url,

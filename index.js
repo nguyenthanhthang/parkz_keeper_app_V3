@@ -1,4 +1,6 @@
 import { registerRootComponent } from 'expo';
+// Import flash theme TRƯỚC App để đảm bảo theme được set sớm nhất
+import './src/lib/flash-theme';
 import App from './App';
 
 // registerRootComponent calls AppRegistry.registerComponent('main', () => App);

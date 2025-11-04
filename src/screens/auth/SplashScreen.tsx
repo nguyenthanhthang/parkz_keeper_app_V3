@@ -13,6 +13,19 @@ export default function SplashScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Only run once on mount
 
+  // Tạm thời tắt auto login keeper - người dùng sẽ tự đăng nhập
+  // // DEV ONLY: Auto skip login for Keeper in dev mode if not authenticated
+  // useEffect(() => {
+  //   if (__DEV__ && !isLoading && !isAuthenticated && mockLogin) {
+  //     // Auto mock login as Keeper để test các màn hình
+  //     const timer = setTimeout(() => {
+  //       mockLogin('Keeper');
+  //     }, 500); // Delay nhỏ để tránh conflict với checkAuth
+
+  //     return () => clearTimeout(timer);
+  //   }
+  // }, [isLoading, isAuthenticated, mockLogin]);
+
   useEffect(() => {
     if (!isLoading) {
       // Navigate based on authentication status

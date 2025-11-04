@@ -4,20 +4,28 @@ import { DATE_FORMATS } from './constants';
 /**
  * Format date for display
  */
-export const formatDate = (date: Date | string, formatStr: string = DATE_FORMATS.DISPLAY): string => {
+export const formatDate = (date: Date | string | null | undefined, formatStr: string = DATE_FORMATS.DISPLAY): string => {
   try {
+    if (!date) return 'Chưa có';
+    
     const dateObj = typeof date === 'string' ? parseISO(date) : date;
+    
+    // Check if date is valid
+    if (!dateObj || isNaN(dateObj.getTime())) {
+      return 'Chưa có';
+    }
+    
     return format(dateObj, formatStr);
   } catch (error) {
-    console.error('Error formatting date:', error);
-    return '';
+    // Silently return fallback instead of logging to reduce console noise
+    return 'Chưa có';
   }
 };
 
 /**
  * Format date with time for display
  */
-export const formatDateTime = (date: Date | string): string => {
+export const formatDateTime = (date: Date | string | null | undefined): string => {
   return formatDate(date, DATE_FORMATS.DISPLAY_WITH_TIME);
 };
 

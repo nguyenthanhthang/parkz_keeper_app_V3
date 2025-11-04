@@ -61,6 +61,10 @@ export default function ParkingListScreen() {
   });
 
   const handleParkingPress = (parking: Parking) => {
+    if (!parking?.id) {
+      console.warn('Parking ID is missing:', parking);
+      return;
+    }
     navigation.navigate('ParkingDetail' as never, { parkingId: parking.id } as never);
   };
 
@@ -148,7 +152,7 @@ export default function ParkingListScreen() {
       <FlatList
         data={filteredParkings}
         renderItem={renderParkingCard}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item, index) => (item?.id != null ? item.id.toString() : `parking-${index}`)}
         contentContainerStyle={styles.listContent}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />

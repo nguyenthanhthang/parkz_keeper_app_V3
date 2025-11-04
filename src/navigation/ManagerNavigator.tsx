@@ -1,25 +1,51 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import ManagerDashboardScreen from '../screens/manager/ManagerDashboardScreen';
 import ParkingListScreen from '../screens/manager/ParkingListScreen';
 import ParkingDetailScreen from '../screens/manager/ParkingDetailScreen';
 import CreateEditParkingScreen from '../screens/manager/CreateEditParkingScreen';
 import MapPickerScreen from '../components/map/MapPickerScreen';
+import ScheduleDisableParkingScreen from '../screens/manager/ScheduleDisableParkingScreen';
+import DisableHistoryScreen from '../screens/manager/DisableHistoryScreen';
+import FloorListScreen from '../screens/manager/FloorListScreen';
+import FloorDetailScreen from '../screens/manager/FloorDetailScreen';
+import CreateEditFloorScreen from '../screens/manager/CreateEditFloorScreen';
+import CreateEditSlotScreen from '../screens/manager/CreateEditSlotScreen';
+import ManagerBookingListScreen from '../screens/manager/ManagerBookingListScreen';
+import ManagerBookingDetailScreen from '../screens/manager/ManagerBookingDetailScreen';
+import PricingListScreen from '../screens/manager/PricingListScreen';
+import CreateEditPricingScreen from '../screens/manager/CreateEditPricingScreen';
+import TimelineManagementScreen from '../screens/manager/TimelineManagementScreen';
+import CreateEditTimelineScreen from '../screens/manager/CreateEditTimelineScreen';
+import AssignPriceToParkingScreen from '../screens/manager/AssignPriceToParkingScreen';
+import KeeperListScreen from '../screens/manager/KeeperListScreen';
+import KeeperDetailScreen from '../screens/manager/KeeperDetailScreen';
+import CreateKeeperScreen from '../screens/manager/CreateKeeperScreen';
+import StatisticsDashboardScreen from '../screens/manager/StatisticsDashboardScreen';
+import RevenueChartScreen from '../screens/manager/RevenueChartScreen';
+import BookingStatisticsScreen from '../screens/manager/BookingStatisticsScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
 import BusinessProfileScreen from '../screens/manager/BusinessProfileScreen';
-import { ParkingStackParamList, HomeStackParamList, ProfileStackParamList } from './types';
-
-// Placeholder screens - sẽ được implement theo plan
-const BookingPlaceholder = () => null;
-const KeeperPlaceholder = () => null;
-const StatisticsPlaceholder = () => null;
+import { 
+  ParkingStackParamList, 
+  HomeStackParamList, 
+  ProfileStackParamList, 
+  ManagerBookingStackParamList,
+  PricingStackParamList,
+  KeeperManagementStackParamList,
+  StatisticsStackParamList
+} from './types';
 
 const Tab = createBottomTabNavigator();
 const ParkingStack = createStackNavigator<ParkingStackParamList>();
 const HomeStack = createStackNavigator<HomeStackParamList>();
 const ProfileStack = createStackNavigator<ProfileStackParamList>();
+const ManagerBookingStack = createStackNavigator<ManagerBookingStackParamList>();
+const PricingStack = createStackNavigator<PricingStackParamList>();
+const KeeperManagementStack = createStackNavigator<KeeperManagementStackParamList>();
+const StatisticsStack = createStackNavigator<StatisticsStackParamList>();
 
 // Home Stack Navigator
 function HomeStackNavigator() {
@@ -52,6 +78,24 @@ function ProfileStackNavigator() {
   );
 }
 
+// Manager Booking Stack Navigator
+function ManagerBookingStackNavigator() {
+  return (
+    <ManagerBookingStack.Navigator>
+      <ManagerBookingStack.Screen
+        name="ManagerBookingList"
+        component={ManagerBookingListScreen}
+        options={{ title: 'Danh sách booking' }}
+      />
+      <ManagerBookingStack.Screen
+        name="ManagerBookingDetail"
+        component={ManagerBookingDetailScreen}
+        options={{ title: 'Chi tiết booking' }}
+      />
+    </ManagerBookingStack.Navigator>
+  );
+}
+
 // Parking Stack Navigator
 function ParkingStackNavigator() {
   return (
@@ -78,7 +122,124 @@ function ParkingStackNavigator() {
         component={MapPickerScreen}
         options={{ title: 'Chọn vị trí' }}
       />
+      <ParkingStack.Screen
+        name="ScheduleDisable"
+        component={ScheduleDisableParkingScreen}
+        options={{ title: 'Lên lịch vô hiệu hóa' }}
+      />
+      <ParkingStack.Screen
+        name="DisableHistory"
+        component={DisableHistoryScreen}
+        options={{ title: 'Lịch sử vô hiệu hóa' }}
+      />
+      <ParkingStack.Screen
+        name="FloorList"
+        component={FloorListScreen}
+        options={{ title: 'Danh sách tầng' }}
+      />
+      <ParkingStack.Screen
+        name="FloorDetail"
+        component={FloorDetailScreen}
+        options={{ title: 'Chi tiết tầng' }}
+      />
+      <ParkingStack.Screen
+        name="CreateEditFloor"
+        component={CreateEditFloorScreen}
+        options={({ route }) => ({
+          title: route.params?.floorId ? 'Chỉnh sửa tầng' : 'Tạo tầng mới',
+        })}
+      />
+      <ParkingStack.Screen
+        name="CreateEditSlot"
+        component={CreateEditSlotScreen}
+        options={({ route }) => ({
+          title: route.params?.slotId ? 'Chỉnh sửa vị trí' : 'Tạo vị trí mới',
+        })}
+      />
     </ParkingStack.Navigator>
+  );
+}
+
+// Pricing Stack Navigator
+function PricingStackNavigator() {
+  return (
+    <PricingStack.Navigator>
+      <PricingStack.Screen
+        name="PricingList"
+        component={PricingListScreen}
+        options={{ title: 'Danh sách bảng giá' }}
+      />
+      <PricingStack.Screen
+        name="CreateEditPricing"
+        component={CreateEditPricingScreen}
+        options={({ route }) => ({
+          title: route.params?.parkingPriceId ? 'Chỉnh sửa bảng giá' : 'Tạo bảng giá mới',
+        })}
+      />
+      <PricingStack.Screen
+        name="TimelineManagement"
+        component={TimelineManagementScreen}
+        options={{ title: 'Quản lý timeline' }}
+      />
+      <PricingStack.Screen
+        name="CreateEditTimeline"
+        component={CreateEditTimelineScreen}
+        options={({ route }) => ({
+          title: route.params?.timelineId ? 'Chỉnh sửa timeline' : 'Tạo timeline mới',
+        })}
+      />
+      <PricingStack.Screen
+        name="AssignPriceToParking"
+        component={AssignPriceToParkingScreen}
+        options={{ title: 'Gán giá cho bãi đỗ' }}
+      />
+    </PricingStack.Navigator>
+  );
+}
+
+// Keeper Management Stack Navigator
+function KeeperManagementStackNavigator() {
+  return (
+    <KeeperManagementStack.Navigator>
+      <KeeperManagementStack.Screen
+        name="KeeperList"
+        component={KeeperListScreen}
+        options={{ title: 'Danh sách keeper' }}
+      />
+      <KeeperManagementStack.Screen
+        name="KeeperDetail"
+        component={KeeperDetailScreen}
+        options={{ title: 'Chi tiết keeper' }}
+      />
+      <KeeperManagementStack.Screen
+        name="CreateKeeper"
+        component={CreateKeeperScreen}
+        options={{ title: 'Tạo keeper mới' }}
+      />
+    </KeeperManagementStack.Navigator>
+  );
+}
+
+// Statistics Stack Navigator
+function StatisticsStackNavigator() {
+  return (
+    <StatisticsStack.Navigator>
+      <StatisticsStack.Screen
+        name="StatisticsDashboard"
+        component={StatisticsDashboardScreen}
+        options={{ title: 'Thống kê' }}
+      />
+      <StatisticsStack.Screen
+        name="RevenueChart"
+        component={RevenueChartScreen}
+        options={{ title: 'Biểu đồ doanh thu' }}
+      />
+      <StatisticsStack.Screen
+        name="BookingStatistics"
+        component={BookingStatisticsScreen}
+        options={{ title: 'Thống kê booking' }}
+      />
+    </StatisticsStack.Navigator>
   );
 }
 
@@ -97,7 +258,7 @@ export default function ManagerNavigator() {
         options={{
           tabBarLabel: 'Trang chủ',
           tabBarIcon: ({ color, size }) => (
-            <Icon name="home" size={size} color={color} />
+            <MaterialCommunityIcons name="home" size={size} color={color} />
           ),
         }}
       />
@@ -107,37 +268,47 @@ export default function ManagerNavigator() {
         options={{
           tabBarLabel: 'Bãi đỗ',
           tabBarIcon: ({ color, size }) => (
-            <Icon name="parking" size={size} color={color} />
+            <MaterialCommunityIcons name="parking" size={size} color={color} />
           ),
         }}
       />
       <Tab.Screen
         name="BookingTab"
-        component={BookingPlaceholder}
+        component={ManagerBookingStackNavigator}
         options={{
           tabBarLabel: 'Đặt chỗ',
           tabBarIcon: ({ color, size }) => (
-            <Icon name="calendar-check" size={size} color={color} />
+            <MaterialCommunityIcons name="calendar-check" size={size} color={color} />
           ),
         }}
       />
       <Tab.Screen
         name="KeeperTab"
-        component={KeeperPlaceholder}
+        component={KeeperManagementStackNavigator}
         options={{
           tabBarLabel: 'Nhân viên',
           tabBarIcon: ({ color, size }) => (
-            <Icon name="account-group" size={size} color={color} />
+            <MaterialCommunityIcons name="account-group" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="PricingTab"
+        component={PricingStackNavigator}
+        options={{
+          tabBarLabel: 'Bảng giá',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="currency-usd" size={size} color={color} />
           ),
         }}
       />
       <Tab.Screen
         name="StatisticsTab"
-        component={StatisticsPlaceholder}
+        component={StatisticsStackNavigator}
         options={{
           tabBarLabel: 'Thống kê',
           tabBarIcon: ({ color, size }) => (
-            <Icon name="chart-bar" size={size} color={color} />
+            <MaterialCommunityIcons name="chart-bar" size={size} color={color} />
           ),
         }}
       />
@@ -147,7 +318,7 @@ export default function ManagerNavigator() {
         options={{
           tabBarLabel: 'Hồ sơ',
           tabBarIcon: ({ color, size }) => (
-            <Icon name="account" size={size} color={color} />
+            <MaterialCommunityIcons name="account" size={size} color={color} />
           ),
         }}
       />

@@ -15,6 +15,7 @@ import {
   ActivityIndicator,
   Switch,
   List,
+  Checkbox,
 } from 'react-native-paper';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { ParkingStackParamList } from '../../navigation/types';
@@ -29,12 +30,14 @@ import {
 } from '../../store/slices/parkingSlice';
 import { CreateParkingRequest, UpdateParkingRequest, Parking } from '../../types';
 import { useAuth } from '../../hooks/useAuth';
+import { useToast } from '../../hooks/useToast';
 
 export default function CreateEditParkingScreen() {
   const navigation = useNavigation();
   const route = useRoute<RouteProp<ParkingStackParamList, 'CreateEditParking'>>();
   const dispatch = useDispatch<AppDispatch>();
   const { user } = useAuth();
+  const toast = useToast();
   const { currentParking, isLoading, error } = useSelector(
     (state: RootState) => state.parking
   );
@@ -86,56 +89,56 @@ export default function CreateEditParkingScreen() {
 
   useEffect(() => {
     if (error) {
-      Alert.alert('Lỗi', error);
+      toast.showError(error);
       dispatch(clearError());
     }
-  }, [error, dispatch]);
+  }, [error, dispatch, toast]);
 
   const validateForm = useCallback((): boolean => {
     if (!name.trim()) {
-      Alert.alert('Lỗi xác thực', 'Vui lòng nhập tên bãi đỗ');
+      toast.showError('Vui lòng nhập tên bãi đỗ');
       return false;
     }
     if (name.trim().length > 50) {
-      Alert.alert('Lỗi xác thực', 'Tên bãi đỗ không được quá 50 ký tự');
+      toast.showError('Tên bãi đỗ không được quá 50 ký tự');
       return false;
     }
     if (!address.trim()) {
-      Alert.alert('Lỗi xác thực', 'Vui lòng nhập địa chỉ');
+      toast.showError('Vui lòng nhập địa chỉ');
       return false;
     }
     if (address.trim().length > 250) {
-      Alert.alert('Lỗi xác thực', 'Địa chỉ không được quá 250 ký tự');
+      toast.showError('Địa chỉ không được quá 250 ký tự');
       return false;
     }
     if (!description.trim()) {
-      Alert.alert('Lỗi xác thực', 'Vui lòng nhập mô tả');
+      toast.showError('Vui lòng nhập mô tả');
       return false;
     }
     if (description.trim().length > 250) {
-      Alert.alert('Lỗi xác thực', 'Mô tả không được quá 250 ký tự');
+      toast.showError('Mô tả không được quá 250 ký tự');
       return false;
     }
     const moto = parseInt(motoSpot, 10);
     const car = parseInt(carSpot, 10);
     if (isNaN(moto) || moto < 0) {
-      Alert.alert('Lỗi xác thực', 'Số slot xe máy phải là số >= 0');
+      toast.showError('Số slot xe máy phải là số >= 0');
       return false;
     }
     if (isNaN(car) || car < 0) {
-      Alert.alert('Lỗi xác thực', 'Số slot xe ô tô phải là số >= 0');
+      toast.showError('Số slot xe ô tô phải là số >= 0');
       return false;
     }
     if (latitude && isNaN(parseFloat(latitude))) {
-      Alert.alert('Lỗi xác thực', 'Vĩ độ phải là số hợp lệ');
+      toast.showError('Vĩ độ phải là số hợp lệ');
       return false;
     }
     if (longitude && isNaN(parseFloat(longitude))) {
-      Alert.alert('Lỗi xác thực', 'Kinh độ phải là số hợp lệ');
+      toast.showError('Kinh độ phải là số hợp lệ');
       return false;
     }
     return true;
-  }, [name, address, description, motoSpot, carSpot, latitude, longitude]);
+  }, [name, address, description, motoSpot, carSpot, latitude, longitude, toast]);
 
   const handleSubmit = useCallback(async () => {
     if (!validateForm()) return;
@@ -153,7 +156,7 @@ export default function CreateEditParkingScreen() {
         };
 
         await dispatch(updateParking({ parkingId, data: updateData })).unwrap();
-        Alert.alert('Thành công', 'Cập nhật bãi đỗ thành công');
+        toast.showSuccess('Cập nhật bãi đỗ thành công');
       } else {
         const createData: CreateParkingRequest = {
           name: name.trim(), // camelCase theo API spec
@@ -181,24 +184,20 @@ export default function CreateEditParkingScreen() {
                 longitude: parseFloat(longitude),
               },
             })).unwrap();
-            Alert.alert('Thành công', 'Tạo bãi đỗ thành công');
+            toast.showSuccess('Tạo bãi đỗ thành công');
           } catch (err) {
             // Nếu update location fail, không fail toàn bộ, chỉ warn
             console.warn('Tạo bãi đỗ thành công nhưng không thể cập nhật vị trí:', err);
-            Alert.alert(
-              'Thành công',
-              'Tạo bãi đỗ thành công. Lưu ý: Vị trí trên bản đồ chưa được cập nhật.',
-              [{ text: 'OK' }]
-            );
+            toast.showWarning('Tạo bãi đỗ thành công. Lưu ý: Vị trí trên bản đồ chưa được cập nhật.');
           }
         } else {
-          Alert.alert('Thành công', 'Tạo bãi đỗ thành công');
+          toast.showSuccess('Tạo bãi đỗ thành công');
         }
       }
 
       navigation.goBack();
     } catch (err: any) {
-      Alert.alert('Lỗi', err.message || 'Lưu bãi đỗ thất bại');
+      toast.showError(err.message || 'Lưu bãi đỗ thất bại');
     }
   }, [
     validateForm,
@@ -216,6 +215,7 @@ export default function CreateEditParkingScreen() {
     user?.id,
     dispatch,
     navigation,
+    toast,
   ]);
 
   if (isEditMode && isLoading && !currentParking) {
@@ -239,9 +239,10 @@ export default function CreateEditParkingScreen() {
               {isEditMode ? 'Chỉnh sửa bãi đỗ' : 'Tạo bãi đỗ mới'}
             </Text>
 
+            {/* Tên bãi xe */}
             <TextInput
-              label="Tên bãi đỗ *"
-              placeholder="Nhập tên bãi đỗ"
+              label="Tên *"
+              placeholder="Nhập tên bãi xe"
               mode="outlined"
               value={name}
               onChangeText={setName}
@@ -249,18 +250,35 @@ export default function CreateEditParkingScreen() {
               editable={!isLoading}
             />
 
-            <TextInput
-              label="Địa chỉ *"
-              placeholder="Nhập địa chỉ"
-              mode="outlined"
-              value={address}
-              onChangeText={setAddress}
-              style={styles.input}
-              multiline
-              numberOfLines={2}
-              editable={!isLoading}
-            />
+            {/* Payment & Overnight Options - Switch */}
+            <Card style={styles.optionsCard}>
+              <Card.Content>
+                <List.Item
+                  title="Gửi xe qua đêm"
+                  right={() => (
+                    <Switch
+                      value={isOvernight}
+                      onValueChange={setIsOvernight}
+                      disabled={isLoading}
+                    />
+                  )}
+                  titleStyle={styles.switchTitle}
+                />
+                <List.Item
+                  title="Có trả trước phí"
+                  right={() => (
+                    <Switch
+                      value={isPrepayment}
+                      onValueChange={setIsPrepayment}
+                      disabled={isLoading}
+                    />
+                  )}
+                  titleStyle={styles.switchTitle}
+                />
+              </Card.Content>
+            </Card>
 
+            {/* Mô tả */}
             <TextInput
               label="Mô tả *"
               placeholder="Nhập mô tả"
@@ -273,39 +291,109 @@ export default function CreateEditParkingScreen() {
               editable={!isLoading}
             />
 
-            {/* Slot Numbers */}
-            <View style={styles.slotsSection}>
-              <Text variant="bodyLarge" style={styles.sectionTitle}>
-                Số lượng slot
-              </Text>
-              <View style={styles.slotsRow}>
-                <TextInput
-                  label="Slot xe máy *"
-                  placeholder="0"
-                  mode="outlined"
-                  value={motoSpot}
-                  onChangeText={setMotoSpot}
-                  keyboardType="numeric"
-                  style={[styles.input, styles.slotInput]}
-                  editable={!isLoading}
-                  left={<TextInput.Icon icon="motorbike" />}
-                />
+            {/* Địa chỉ */}
+            <TextInput
+              label="Địa chỉ (Số, đường, quận, TP Hồ Chí Minh) *"
+              placeholder="Nhập địa chỉ"
+              mode="outlined"
+              value={address}
+              onChangeText={setAddress}
+              style={styles.input}
+              multiline
+              numberOfLines={2}
+              editable={!isLoading}
+            />
 
-                <TextInput
-                  label="Slot xe ô tô *"
-                  placeholder="0"
-                  mode="outlined"
-                  value={carSpot}
-                  onChangeText={setCarSpot}
-                  keyboardType="numeric"
-                  style={[styles.input, styles.slotInput]}
-                  editable={!isLoading}
-                  left={<TextInput.Icon icon="car" />}
-                />
-              </View>
-              <Text variant="bodySmall" style={styles.helperText}>
-                Tổng số slot: {parseInt(motoSpot || '0', 10) + parseInt(carSpot || '0', 10)}
+            {/* Tầng 1 - Floor Configuration */}
+            <Card style={styles.floorCard}>
+              <Card.Content style={styles.floorCardContent}>
+                <Text variant="titleMedium" style={styles.floorTitle}>
+                  Tầng 1
+                </Text>
+                <View style={styles.floorGrid}>
+                  <View style={styles.floorInputWrapper}>
+                    <TextInput
+                      label="Tổng số vị trí"
+                      placeholder="0"
+                      mode="outlined"
+                      value={motoSpot}
+                      onChangeText={setMotoSpot}
+                      keyboardType="numeric"
+                      style={styles.floorInput}
+                      editable={!isLoading}
+                      dense
+                    />
+                  </View>
+                  <View style={styles.floorInputWrapper}>
+                    <TextInput
+                      label="Vị trí dự phòng"
+                      placeholder="0"
+                      mode="outlined"
+                      value={carSpot}
+                      onChangeText={setCarSpot}
+                      keyboardType="numeric"
+                      style={styles.floorInput}
+                      editable={!isLoading}
+                      dense
+                    />
+                  </View>
+                  <View style={styles.floorInputWrapper}>
+                    <TextInput
+                      label="Số hàng"
+                      placeholder="0"
+                      mode="outlined"
+                      value="0"
+                      keyboardType="numeric"
+                      style={styles.floorInput}
+                      editable={false}
+                      dense
+                    />
+                  </View>
+                  <View style={styles.floorInputWrapper}>
+                    <TextInput
+                      label="Số cột"
+                      placeholder="0"
+                      mode="outlined"
+                      value="0"
+                      keyboardType="numeric"
+                      style={styles.floorInput}
+                      editable={false}
+                      dense
+                    />
+                  </View>
+                </View>
+                <Button
+                  mode="text"
+                  icon="plus"
+                  onPress={() => {
+                    // TODO: Thêm tầng mới
+                    toast.showInfo('Chức năng thêm tầng sẽ được phát triển sau');
+                  }}
+                  disabled={isLoading}
+                  style={styles.addFloorButton}
+                >
+                  Thêm tầng
+                </Button>
+              </Card.Content>
+            </Card>
+
+            {/* Chọn hình ảnh */}
+            <View style={styles.imageSection}>
+              <Text variant="bodyLarge" style={styles.sectionTitle}>
+                Chọn hình ảnh
               </Text>
+              <Button
+                mode="outlined"
+                icon="image"
+                onPress={() => {
+                  // TODO: Implement image picker
+                  toast.showInfo('Chức năng upload hình ảnh sẽ được phát triển sau');
+                }}
+                disabled={isLoading}
+                style={styles.imageButton}
+              >
+                Tải ảnh lên
+              </Button>
             </View>
 
             {/* Location Selection */}
@@ -355,35 +443,6 @@ export default function CreateEditParkingScreen() {
               </View>
             </View>
 
-            {/* Payment & Overnight Options */}
-            <Card style={styles.optionsCard}>
-              <Card.Content>
-                <List.Item
-                  title="Thanh toán trả trước"
-                  description="Cho phép khách hàng thanh toán trước khi sử dụng dịch vụ"
-                  right={() => (
-                    <Switch
-                      value={isPrepayment}
-                      onValueChange={setIsPrepayment}
-                      disabled={isLoading}
-                    />
-                  )}
-                  titleStyle={styles.switchTitle}
-                />
-                <List.Item
-                  title="Giữ xe qua đêm"
-                  description="Áp dụng dịch vụ giữ xe qua đêm cho bãi đỗ này"
-                  right={() => (
-                    <Switch
-                      value={isOvernight}
-                      onValueChange={setIsOvernight}
-                      disabled={isLoading}
-                    />
-                  )}
-                  titleStyle={styles.switchTitle}
-                />
-              </Card.Content>
-            </Card>
 
             <Button
               mode="contained"
@@ -460,22 +519,6 @@ const styles = StyleSheet.create({
   locationInput: {
     flex: 1,
   },
-  slotsSection: {
-    marginBottom: 16,
-  },
-  slotsRow: {
-    flexDirection: 'row',
-    gap: 12,
-    marginBottom: 8,
-  },
-  slotInput: {
-    flex: 1,
-  },
-  helperText: {
-    color: '#757575',
-    marginTop: 4,
-    fontStyle: 'italic',
-  },
   optionsCard: {
     marginBottom: 16,
     backgroundColor: '#ffffff',
@@ -483,6 +526,47 @@ const styles = StyleSheet.create({
   switchTitle: {
     fontSize: 16,
     fontWeight: '500',
+  },
+  floorCard: {
+    marginBottom: 16,
+    borderWidth: 2,
+    borderStyle: 'dashed',
+    borderColor: '#6200ee',
+    backgroundColor: '#ffffff',
+    overflow: 'hidden',
+  },
+  floorCardContent: {
+    padding: 16,
+  },
+  floorTitle: {
+    color: '#6200ee',
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
+  floorGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginHorizontal: -4,
+    marginBottom: 12,
+  },
+  floorInputWrapper: {
+    width: '48%',
+    paddingHorizontal: 4,
+    marginBottom: 12,
+  },
+  floorInput: {
+    marginBottom: 0,
+    marginHorizontal: 0,
+  },
+  addFloorButton: {
+    alignSelf: 'flex-start',
+    marginTop: 8,
+  },
+  imageSection: {
+    marginBottom: 16,
+  },
+  imageButton: {
+    marginTop: 8,
   },
   submitButton: {
     marginTop: 8,

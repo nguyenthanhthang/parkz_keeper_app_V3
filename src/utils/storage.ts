@@ -110,3 +110,18 @@ export const userStorage = {
   },
 };
 
+/**
+ * Clear all auth data (DEV ONLY)
+ * Use this to force logout and return to login screen
+ */
+export const clearAuthStorage = async (): Promise<void> => {
+  try {
+    await tokenStorage.removeToken();
+    await userStorage.removeUser();
+    console.log('Auth storage cleared');
+  } catch (error) {
+    console.error('Error clearing auth storage:', error);
+    throw error;
+  }
+};
+

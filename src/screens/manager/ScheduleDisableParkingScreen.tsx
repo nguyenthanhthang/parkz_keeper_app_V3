@@ -22,12 +22,14 @@ import {
   disableParkingByDateTime,
   clearError,
 } from '../../store/slices/parkingSlice';
+import { useToast } from '../../hooks/useToast';
 import { format } from 'date-fns';
 
 export default function ScheduleDisableParkingScreen() {
   const navigation = useNavigation();
   const route = useRoute<RouteProp<ParkingStackParamList, 'ScheduleDisable'>>();
   const dispatch = useDispatch<AppDispatch>();
+  const toast = useToast();
   const { isLoading, error } = useSelector((state: RootState) => state.parking);
 
   const parkingId = route.params?.parkingId || 0;
@@ -41,10 +43,10 @@ export default function ScheduleDisableParkingScreen() {
 
   React.useEffect(() => {
     if (error) {
-      Alert.alert('Lỗi', error);
+      toast.showError(error);
       dispatch(clearError());
     }
-  }, [error, dispatch]);
+  }, [error, dispatch, toast]);
 
   const validateDate = (dateStr: string): boolean => {
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;

@@ -9,6 +9,8 @@ export interface User {
   name: string;
   phone?: string;
   role: UserRole | string;
+  parkingId?: number; // ID bãi đỗ được gán cho Keeper
+  parkingName?: string; // Tên bãi đỗ được gán cho Keeper
 }
 
 export interface LoginCredentials {

@@ -50,3 +50,25 @@ export interface BookingPagination {
   hasMore: boolean;
 }
 
+// Manager Booking Management Types
+export interface ApproveBookingRequest {
+  bookingId: number;
+  approved?: boolean; // Optional, default true
+}
+
+export interface CheckoutBookingRequest {
+  bookingId: number;
+}
+
+export interface MarkBookingDoneRequest {
+  bookingId: number;
+}
+
+export interface ManagerBookingFilter {
+  status?: BookingStatus;
+  date?: string; // yyyy-MM-dd
+  parkingId?: number;
+  pageNo?: number;
+  pageSize?: number;
+}
+

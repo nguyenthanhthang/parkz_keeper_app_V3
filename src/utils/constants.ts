@@ -8,6 +8,10 @@
 // ============================================
 export const API_BASE_URL = "http://103.56.161.75/api";
 
+// Dev logging toggle for API requests/responses
+export const ENABLE_API_LOGS =
+  (process.env.EXPO_PUBLIC_API_LOGS as string) === '1' || false;
+
 // Google Maps Configuration
 // ============================================
 // Google Maps API Key - Cần cấu hình từ Google Cloud Console

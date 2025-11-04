@@ -8,11 +8,14 @@ export const useAuth = () => {
   const dispatch = useDispatch<AppDispatch>();
   // Use shallow equality selector to prevent unnecessary re-renders
   const auth = useSelector((state: RootState) => state.auth, (left, right) => {
+    // Include parkingName (and role) to ensure UI updates when these change
     return (
       left.isLoading === right.isLoading &&
       left.isAuthenticated === right.isAuthenticated &&
       left.error === right.error &&
       left.user?.id === right.user?.id &&
+      left.user?.parkingName === right.user?.parkingName &&
+      left.user?.role === right.user?.role &&
       left.token === right.token
     );
   });

@@ -1,23 +1,90 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback } from "react";
 import {
   View,
   StyleSheet,
   ScrollView,
   RefreshControl,
   TouchableOpacity,
-} from 'react-native';
+} from "react-native";
 import {
   Text,
   Card,
   ActivityIndicator,
   Button,
   Chip,
-} from 'react-native-paper';
-import { useAuth } from '../../hooks/useAuth';
-import { useNavigation } from '@react-navigation/native';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { useBooking } from '../../hooks/useBooking';
-import { DEFAULT_PAGE_SIZE } from '../../utils/constants';
+} from "react-native-paper";
+import { useAuth } from "../../hooks/useAuth";
+import { useNavigation } from "@react-navigation/native";
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import { useBooking } from "../../hooks/useBooking";
+import { DEFAULT_PAGE_SIZE } from "../../utils/constants";
+
+// Helper functions for booking status
+const getStatusIcon = (status: string): string => {
+  switch (status) {
+    case "Done":
+    case "Completed":
+    case "Check_Out":
+    case "Success":
+      return "check-circle";
+    case "Cancel":
+    case "Cancelled":
+      return "close-circle";
+    case "Check_In":
+      return "clock-check";
+    case "Confirmed":
+      return "check";
+    case "Pending":
+    case "Booked":
+      return "clock-outline";
+    default:
+      return "clock-outline";
+  }
+};
+
+const getStatusColor = (status: string): string => {
+  switch (status) {
+    case "Done":
+    case "Completed":
+    case "Check_Out":
+    case "Success":
+      return "#4caf50";
+    case "Cancel":
+    case "Cancelled":
+      return "#f44336";
+    case "Pending":
+    case "Booked":
+      return "#ff9800";
+    case "Confirmed":
+    case "Check_In":
+      return "#2196f3";
+    default:
+      return "#757575";
+  }
+};
+
+const getStatusLabel = (status: string): string => {
+  switch (status) {
+    case "Done":
+    case "Completed":
+    case "Success":
+      return "Hoàn thành";
+    case "Check_Out":
+      return "Đã check-out";
+    case "Check_In":
+      return "Đã check-in";
+    case "Cancel":
+    case "Cancelled":
+      return "Đã hủy";
+    case "Pending":
+    case "Booked":
+      return "Chờ duyệt";
+    case "Confirmed":
+      return "Đã xác nhận";
+    default:
+      return status || "—";
+  }
+};
 
 export default function KeeperDashboardScreen() {
   const navigation = useNavigation();
@@ -58,7 +125,7 @@ export default function KeeperDashboardScreen() {
       <Card style={[styles.statCard, { borderLeftColor: color }]}>
         <Card.Content style={styles.statCardContent}>
           <View style={styles.statCardIcon}>
-            <Icon name={icon} size={32} color={color} />
+            <MaterialCommunityIcons name={icon} size={32} color={color} />
           </View>
           <View style={styles.statCardText}>
             <Text variant="bodySmall" style={styles.statCardTitle}>
@@ -84,10 +151,10 @@ export default function KeeperDashboardScreen() {
       {/* Header */}
       <View style={styles.header}>
         <Text variant="headlineMedium" style={styles.headerTitle}>
-          Xin chào, {user?.name || 'Keeper'} 👋
+          Xin chào, {user?.name || "Keeper"} 👋
         </Text>
         <Text variant="bodyMedium" style={styles.headerSubtitle}>
-          Bãi đỗ: {user?.parkingName || 'Chưa gán bãi đỗ'}
+          Bãi đỗ: {user?.parkingName || "Chưa gán bãi đỗ"}
         </Text>
       </View>
 
@@ -101,7 +168,7 @@ export default function KeeperDashboardScreen() {
           onPress={() => {
             const parentNavigation = navigation.getParent();
             if (parentNavigation) {
-              parentNavigation.navigate('BookingTab' as never);
+              parentNavigation.navigate("BookingTab" as never);
             }
           }}
         />
@@ -113,7 +180,7 @@ export default function KeeperDashboardScreen() {
           onPress={() => {
             const parentNavigation = navigation.getParent();
             if (parentNavigation) {
-              parentNavigation.navigate('SlotTab' as never);
+              parentNavigation.navigate("SlotTab" as never);
             }
           }}
         />
@@ -125,7 +192,7 @@ export default function KeeperDashboardScreen() {
           onPress={() => {
             const parentNavigation = navigation.getParent();
             if (parentNavigation) {
-              parentNavigation.navigate('ConflictTab' as never);
+              parentNavigation.navigate("ConflictTab" as never);
             }
           }}
         />
@@ -142,9 +209,12 @@ export default function KeeperDashboardScreen() {
             onPress={() => {
               const parentNavigation = navigation.getParent();
               if (parentNavigation) {
-                parentNavigation.navigate('BookingTab' as never, {
-                  screen: 'CreatePasserbyBooking',
-                } as never);
+                parentNavigation.navigate(
+                  "BookingTab" as never,
+                  {
+                    screen: "CreatePasserbyBooking",
+                  } as never
+                );
               }
             }}
             icon="plus-circle"
@@ -159,7 +229,7 @@ export default function KeeperDashboardScreen() {
             onPress={() => {
               const parentNavigation = navigation.getParent();
               if (parentNavigation) {
-                parentNavigation.navigate('SlotTab' as never);
+                parentNavigation.navigate("SlotTab" as never);
               }
             }}
             icon="view-grid"
@@ -183,7 +253,7 @@ export default function KeeperDashboardScreen() {
               onPress={() => {
                 const parentNavigation = navigation.getParent();
                 if (parentNavigation) {
-                  parentNavigation.navigate('BookingTab' as never);
+                  parentNavigation.navigate("BookingTab" as never);
                 }
               }}
               compact
@@ -211,40 +281,31 @@ export default function KeeperDashboardScreen() {
                   onPress={() => {
                     const parentNavigation = navigation.getParent();
                     if (parentNavigation) {
-                      parentNavigation.navigate('BookingTab' as never, {
-                        screen: 'BookingDetail',
-                        params: { bookingId: booking.id },
-                      } as never);
+                      parentNavigation.navigate(
+                        "BookingTab" as never,
+                        {
+                          screen: "BookingDetail",
+                          params: { bookingId: booking.id },
+                        } as never
+                      );
                     }
                   }}
                 >
                   <View style={styles.bookingItemContent}>
                     <View style={styles.bookingItemHeader}>
                       <Text variant="titleMedium" style={styles.bookingId}>
-                        Booking #{booking.id}
+                        Đặt chỗ #{booking.id}
                       </Text>
                       <Chip
-                        icon={
-                          booking.status === 'Done'
-                            ? 'check-circle'
-                            : booking.status === 'Cancel'
-                            ? 'close-circle'
-                            : 'clock-outline'
-                        }
+                        compact
+                        icon={getStatusIcon(booking.status)}
                         style={[
                           styles.statusChip,
-                          booking.status === 'Done'
-                            ? styles.statusDone
-                            : booking.status === 'Cancel'
-                            ? styles.statusCancel
-                            : styles.statusPending,
+                          { backgroundColor: getStatusColor(booking.status) },
                         ]}
+                        textStyle={{ color: "#fff" }}
                       >
-                        {booking.status === 'Done'
-                          ? 'Hoàn thành'
-                          : booking.status === 'Cancel'
-                          ? 'Đã hủy'
-                          : 'Chờ duyệt'}
+                        {getStatusLabel(booking.status)}
                       </Chip>
                     </View>
                     {booking.customerName && (
@@ -263,7 +324,13 @@ export default function KeeperDashboardScreen() {
                       </Text>
                     )}
                   </View>
-                  <Icon name="chevron-right" size={24} color="#757575" />
+                  <View style={styles.chevronWrap}>
+                    <MaterialCommunityIcons
+                      name="chevron-right"
+                      size={24}
+                      color="#757575"
+                    />
+                  </View>
                 </TouchableOpacity>
               ))}
             </View>
@@ -277,7 +344,7 @@ export default function KeeperDashboardScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
   },
   contentContainer: {
     padding: 16,
@@ -287,14 +354,14 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   headerTitle: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 4,
   },
   headerSubtitle: {
-    color: '#757575',
+    color: "#757575",
   },
   statsRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 12,
     marginBottom: 12,
   },
@@ -305,8 +372,8 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   statCardContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingVertical: 12,
   },
   statCardIcon: {
@@ -316,13 +383,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   statCardTitle: {
-    color: '#757575',
+    color: "#757575",
     marginBottom: 4,
     fontSize: 12,
   },
   statCardValue: {
-    fontWeight: 'bold',
-    color: '#212121',
+    fontWeight: "bold",
+    color: "#212121",
     fontSize: 20,
   },
   quickActionsCard: {
@@ -332,7 +399,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   sectionTitle: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 16,
   },
   createBookingButton: {
@@ -353,68 +420,64 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   bookingsHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 16,
   },
   loadingContainer: {
     paddingVertical: 24,
-    alignItems: 'center',
+    alignItems: "center",
   },
   emptyContainer: {
     paddingVertical: 24,
-    alignItems: 'center',
+    alignItems: "center",
   },
   emptyText: {
-    color: '#757575',
+    color: "#757575",
   },
   bookingsList: {
     gap: 12,
   },
   bookingItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     padding: 12,
-    backgroundColor: '#fafafa',
+    backgroundColor: "#fafafa",
     borderRadius: 8,
     borderLeftWidth: 4,
-    borderLeftColor: '#6200ee',
+    borderLeftColor: "#6200ee",
   },
   bookingItemContent: {
     flex: 1,
   },
   bookingItemHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     marginBottom: 8,
   },
   bookingId: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   statusChip: {
-    height: 24,
+    height: 28,
+    borderRadius: 16,
   },
-  statusDone: {
-    backgroundColor: '#4caf50',
-  },
-  statusCancel: {
-    backgroundColor: '#f44336',
-  },
-  statusPending: {
-    backgroundColor: '#ff9800',
+  chevronWrap: {
+    width: 32,
+    alignItems: "center",
+    justifyContent: "center",
   },
   customerName: {
     marginBottom: 4,
-    color: '#424242',
+    color: "#424242",
   },
   phoneNumber: {
-    color: '#757575',
+    color: "#757575",
     marginBottom: 2,
   },
   slotName: {
-    color: '#757575',
+    color: "#757575",
   },
 });
-

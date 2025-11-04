@@ -7,7 +7,7 @@ export type AuthStackParamList = {
 
 export type BookingStackParamList = {
   BookingList: undefined;
-  BookingDetail: { bookingId: number };
+  BookingDetail: { bookingId: number; booking?: any }; // booking is optional fallback data
   CreatePasserbyBooking: undefined;
 };
 
@@ -40,6 +40,10 @@ export type ParkingStackParamList = {
   };
   ScheduleDisable: { parkingId: number };
   DisableHistory: { parkingId: number };
+  FloorList: { parkingId: number };
+  FloorDetail: { floorId: number };
+  CreateEditFloor: { parkingId: number; floorId?: number }; // floorId undefined = create, có value = edit
+  CreateEditSlot: { floorId: number; slotId?: number }; // slotId undefined = create, có value = edit
 };
 
 export type ManagerBookingStackParamList = {
@@ -53,14 +57,25 @@ export type KeeperManagementStackParamList = {
   CreateKeeper: undefined;
 };
 
+export type PricingStackParamList = {
+  PricingList: undefined;
+  CreateEditPricing: { parkingPriceId?: number };
+  TimelineManagement: { parkingPriceId: number };
+  CreateEditTimeline: { parkingPriceId: number; timelineId?: number };
+  AssignPriceToParking: undefined;
+};
+
 export type StatisticsStackParamList = {
   StatisticsDashboard: undefined;
+  RevenueChart: undefined;
+  BookingStatistics: undefined;
 };
 
 export type ManagerTabParamList = {
   HomeTab: NavigatorScreenParams<HomeStackParamList>;
   ParkingTab: NavigatorScreenParams<ParkingStackParamList>;
   ManagerBookingTab: NavigatorScreenParams<ManagerBookingStackParamList>;
+  PricingTab: NavigatorScreenParams<PricingStackParamList>;
   KeeperManagementTab: NavigatorScreenParams<KeeperManagementStackParamList>;
   StatisticsTab: NavigatorScreenParams<StatisticsStackParamList>;
   ProfileTab: NavigatorScreenParams<ProfileStackParamList>;

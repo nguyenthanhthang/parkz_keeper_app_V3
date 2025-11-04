@@ -11,10 +11,12 @@ import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import * as Location from 'expo-location';
 import { ParkingStackParamList } from '../../navigation/types';
 import MapView, { Marker, Region, UrlTile } from 'react-native-maps';
+import { useToast } from '../../hooks/useToast';
 
 export default function MapPickerScreen() {
   const navigation = useNavigation();
   const route = useRoute<RouteProp<ParkingStackParamList, 'MapPicker'>>();
+  const toast = useToast();
   const { initialLatitude, initialLongitude } = route.params || {};
   const [latitude, setLatitude] = useState<number>(initialLatitude || 10.8231); // Default: Ho Chi Minh City
   const [longitude, setLongitude] = useState<number>(initialLongitude || 106.6297);
@@ -28,11 +30,7 @@ export default function MapPickerScreen() {
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert(
-          'Quyền truy cập vị trí',
-          'Vui lòng cấp quyền truy cập vị trí để sử dụng tính năng này',
-          [{ text: 'OK' }]
-        );
+        toast.showWarning('Vui lòng cấp quyền truy cập vị trí để sử dụng tính năng này');
         setLoadingLocation(false);
         return;
       }
@@ -55,7 +53,7 @@ export default function MapPickerScreen() {
       }
     } catch (error) {
       console.error('Error getting location:', error);
-      Alert.alert('Lỗi', 'Không thể lấy vị trí hiện tại');
+      toast.showError('Không thể lấy vị trí hiện tại');
     } finally {
       setLoadingLocation(false);
     }

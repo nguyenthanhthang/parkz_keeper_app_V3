@@ -9,10 +9,12 @@ import {
 } from 'react-native';
 import { TextInput, Button, Text, Surface, SegmentedButtons } from 'react-native-paper';
 import { useAuth } from '../../hooks/useAuth';
+import { useToast } from '../../hooks/useToast';
 import { LoginCredentials, UserRole } from '../../types';
 
 export default function LoginScreen() {
-  const { login, isLoading, error, mockLogin } = useAuth();
+  const { login, isLoading, error } = useAuth();
+  const toast = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [selectedRole, setSelectedRole] = useState<string>(UserRole.KEEPER);
   
@@ -60,17 +62,11 @@ export default function LoginScreen() {
     try {
       await login(credentials).unwrap();
       // Navigation will be handled automatically by AppNavigator based on role
+      toast.showSuccess('Đăng nhập thành công');
     } catch (err: any) {
-      Alert.alert('Đăng nhập thất bại', err.message || 'Thông tin đăng nhập không hợp lệ');
+      toast.showError(err.message || 'Thông tin đăng nhập không hợp lệ');
     }
   }, [email, password, selectedRole, isFormFilled, isLoading, login]);
-
-  // DEV ONLY: Bypass login để test các chức năng khác
-  const handleSkipLogin = useCallback(() => {
-    if (mockLogin) {
-      mockLogin(selectedRole);
-    }
-  }, [mockLogin, selectedRole]);
 
   return (
     <KeyboardAvoidingView
@@ -160,20 +156,6 @@ export default function LoginScreen() {
             >
               Đăng nhập
             </Button>
-
-            {/* DEV ONLY: Skip Login button */}
-            {__DEV__ && mockLogin && (
-              <Button
-                mode="outlined"
-                onPress={handleSkipLogin}
-                disabled={isLoading}
-                style={[styles.button, styles.skipButton]}
-                contentStyle={styles.buttonContent}
-                textColor="#6200ee"
-              >
-                ⚡ Bỏ qua đăng nhập (Chỉ Dev)
-              </Button>
-            )}
           </View>
         </Surface>
       </ScrollView>
@@ -230,9 +212,5 @@ const styles = StyleSheet.create({
   },
   segmentButton: {
     flex: 1,
-  },
-  skipButton: {
-    marginTop: 12,
-    borderColor: '#6200ee',
   },
 });

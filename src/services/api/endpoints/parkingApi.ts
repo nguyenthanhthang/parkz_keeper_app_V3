@@ -56,14 +56,15 @@ export const parkingApi = {
         // Data có thể ở response.data hoặc response.data.data
         const parkingData = response.data?.data || response.data;
         
-        // Nếu là array, return luôn
+        // Nếu là array, filter và return (loại bỏ items không có id)
         if (Array.isArray(parkingData)) {
-          return parkingData;
+          return parkingData.filter((item: any) => item?.id != null);
         } 
         // Nếu là object (có thể là paginated response hoặc single item)
         else if (parkingData && typeof parkingData === 'object') {
           // Paginated response có thể có items array
-          return parkingData.items || [parkingData];
+          const items = parkingData.items || (parkingData.id ? [parkingData] : []);
+          return Array.isArray(items) ? items.filter((item: any) => item?.id != null) : [];
         }
       }
       

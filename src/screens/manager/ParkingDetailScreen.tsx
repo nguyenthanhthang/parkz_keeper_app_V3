@@ -28,12 +28,14 @@ import {
 } from '../../store/slices/parkingSlice';
 import { Parking } from '../../types';
 import { useAuth } from '../../hooks/useAuth';
+import { useToast } from '../../hooks/useToast';
 
 export default function ParkingDetailScreen() {
   const navigation = useNavigation();
   const route = useRoute<RouteProp<ParkingStackParamList, 'ParkingDetail'>>();
   const dispatch = useDispatch<AppDispatch>();
   const { user } = useAuth();
+  const toast = useToast();
   const { currentParking, isLoading, error } = useSelector(
     (state: RootState) => state.parking
   );
@@ -51,10 +53,10 @@ export default function ParkingDetailScreen() {
 
       useEffect(() => {
         if (error) {
-          Alert.alert('Lỗi', error);
+          toast.showError(error);
           dispatch(clearError());
         }
-      }, [error, dispatch]);
+      }, [error, dispatch, toast]);
 
   const handleEdit = () => {
     if (currentParking) {
@@ -76,10 +78,10 @@ export default function ParkingDetailScreen() {
           onPress: async () => {
             try {
               await dispatch(deleteParking(parkingId)).unwrap();
-              Alert.alert('Thành công', 'Cập nhật bãi đỗ thành công');
+              toast.showSuccess('Cập nhật bãi đỗ thành công');
               navigation.goBack();
             } catch (err: any) {
-              Alert.alert('Lỗi', err.message || 'Cập nhật bãi đỗ thất bại');
+              toast.showError(err.message || 'Cập nhật bãi đỗ thất bại');
             }
           },
         },
@@ -100,9 +102,9 @@ export default function ParkingDetailScreen() {
           onPress: async () => {
             try {
               await dispatch(markParkingFull(parkingId)).unwrap();
-              Alert.alert('Thành công', 'Cập nhật trạng thái bãi đỗ thành công');
+              toast.showSuccess('Cập nhật trạng thái bãi đỗ thành công');
             } catch (err: any) {
-              Alert.alert('Lỗi', err.message || 'Cập nhật trạng thái thất bại');
+              toast.showError(err.message || 'Cập nhật trạng thái thất bại');
             }
           },
         },
@@ -223,6 +225,33 @@ export default function ParkingDetailScreen() {
           textColor={currentParking.isActive ? '#f44336' : '#4caf50'}
         >
           {currentParking.isActive ? 'Vô hiệu hóa' : 'Kích hoạt'}
+        </Button>
+
+        <Button
+          mode="outlined"
+          onPress={() => navigation.navigate('ScheduleDisable' as never, { parkingId } as never)}
+          style={styles.actionButton}
+          icon="calendar-clock"
+        >
+          Lên lịch vô hiệu hóa
+        </Button>
+
+        <Button
+          mode="outlined"
+          onPress={() => navigation.navigate('DisableHistory' as never, { parkingId } as never)}
+          style={styles.actionButton}
+          icon="history"
+        >
+          Lịch sử vô hiệu hóa
+        </Button>
+
+        <Button
+          mode="contained"
+          onPress={() => navigation.navigate('FloorList' as never, { parkingId } as never)}
+          style={styles.actionButton}
+          icon="layers"
+        >
+          Quản lý tầng
         </Button>
       </View>
     </ScrollView>

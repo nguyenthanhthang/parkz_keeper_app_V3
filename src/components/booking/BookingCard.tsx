@@ -12,22 +12,57 @@ interface BookingCardProps {
 const getStatusColor = (status: BookingStatus | string): string => {
   switch (status) {
     case BookingStatus.PENDING:
-      return '#FF9800';
+    case 'Pending':
+      return '#ff9800';
     case BookingStatus.CONFIRMED:
-      return '#2196F3';
+    case 'Confirmed':
+    case 'Check_In':
+      return '#2196f3';
     case BookingStatus.IN_PROGRESS:
-      return '#4CAF50';
+      return '#4caf50';
     case BookingStatus.COMPLETED:
-      return '#9E9E9E';
+    case 'Check_Out':
+    case 'Success':
+      return '#4caf50';
     case BookingStatus.CANCELLED:
-      return '#F44336';
+    case 'Cancel':
+    case 'Cancelled':
+      return '#f44336';
     default:
       return '#757575';
   }
 };
 
+const getStatusLabel = (status: string): string => {
+  switch (status) {
+    case 'Pending':
+      return 'Chờ duyệt';
+    case 'Confirmed':
+      return 'Đã xác nhận';
+    case 'Check_In':
+      return 'Đã check-in';
+    case 'Check_Out':
+      return 'Đã check-out';
+    case 'Success':
+    case 'Completed':
+      return 'Hoàn thành';
+    case 'Cancel':
+    case 'Cancelled':
+      return 'Đã hủy';
+    default:
+      return status || '—';
+  }
+};
+
 export default function BookingCard({ booking, onPress }: BookingCardProps) {
   const statusColor = getStatusColor(booking.status);
+  const displayId = (booking as any)?.id ?? (booking as any)?.bookingId ?? (booking as any)?.bookingCode ?? '—';
+  if (__DEV__) {
+    try {
+      // eslint-disable-next-line no-console
+      console.log('[BookingCard] render', { id: (booking as any)?.id, bookingId: (booking as any)?.bookingId, bookingCode: (booking as any)?.bookingCode, displayId });
+    } catch {}
+  }
 
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
@@ -35,14 +70,14 @@ export default function BookingCard({ booking, onPress }: BookingCardProps) {
         <Card.Content>
           <View style={styles.header}>
             <Text variant="titleMedium" style={styles.title}>
-              Booking #{booking.id}
+              Đặt chỗ #{displayId}
             </Text>
             <View style={[styles.statusBadge, { backgroundColor: statusColor + '20' }]}>
               <Text
                 variant="labelSmall"
                 style={[styles.statusText, { color: statusColor }]}
               >
-                {booking.status}
+                {getStatusLabel(String(booking.status))}
               </Text>
             </View>
           </View>
@@ -72,7 +107,7 @@ export default function BookingCard({ booking, onPress }: BookingCardProps) {
           {booking.slotName && (
             <View style={styles.row}>
               <Text variant="bodySmall" style={styles.label}>
-                Slot:
+                Vị trí:
               </Text>
               <Text variant="bodyMedium" style={styles.value}>
                 {booking.slotName}
@@ -80,23 +115,27 @@ export default function BookingCard({ booking, onPress }: BookingCardProps) {
             </View>
           )}
 
-          <View style={styles.row}>
-            <Text variant="bodySmall" style={styles.label}>
-              Ngày đặt:
-            </Text>
-            <Text variant="bodyMedium" style={styles.value}>
-              {formatDate(booking.dateBook)}
-            </Text>
-          </View>
+          {booking.dateBook && (
+            <View style={styles.row}>
+              <Text variant="bodySmall" style={styles.label}>
+                Ngày đặt:
+              </Text>
+              <Text variant="bodyMedium" style={styles.value}>
+                {formatDate(booking.dateBook)}
+              </Text>
+            </View>
+          )}
 
-          <View style={styles.row}>
-            <Text variant="bodySmall" style={styles.label}>
-              Thời gian:
-            </Text>
-            <Text variant="bodyMedium" style={styles.value}>
-              {formatDateTime(booking.startTime)} - {formatDateTime(booking.endTime)}
-            </Text>
-          </View>
+          {(booking.startTime || booking.endTime) && (
+            <View style={styles.row}>
+              <Text variant="bodySmall" style={styles.label}>
+                Thời gian:
+              </Text>
+              <Text variant="bodyMedium" style={styles.value}>
+                {formatDateTime(booking.startTime || '')} - {formatDateTime(booking.endTime || '')}
+              </Text>
+            </View>
+          )}
 
           {booking.customerPhone && (
             <View style={styles.row}>

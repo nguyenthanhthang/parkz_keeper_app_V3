@@ -1,4 +1,5 @@
 import { useDispatch, useSelector } from 'react-redux';
+import { useCallback } from 'react';
 import { RootState, AppDispatch } from '../store/store';
 import {
   getAllBookings,
@@ -18,21 +19,63 @@ export const useBooking = () => {
   const dispatch = useDispatch<AppDispatch>();
   const booking = useSelector((state: RootState) => state.booking);
 
+  // Memoize các functions để tránh re-render không cần thiết
+  const getAllBookingsMemo = useCallback(
+    (keeperId: number, pageNo?: number, pageSize?: number) =>
+      dispatch(getAllBookings({ keeperId, pageNo, pageSize })),
+    [dispatch]
+  );
+
+  const searchBookingsMemo = useCallback(
+    (keeperId: number, searchString: string) =>
+      dispatch(searchBookings({ keeperId, searchString })),
+    [dispatch]
+  );
+
+  const filterBookingsMemo = useCallback(
+    (keeperId: number, filters: BookingFilter, pageNo?: number, pageSize?: number) =>
+      dispatch(filterBookings({ keeperId, filters, pageNo, pageSize })),
+    [dispatch]
+  );
+
+  const getBookingInfoMemo = useCallback(
+    (bookingId: number) => dispatch(getBookingInfo(bookingId)),
+    [dispatch]
+  );
+
+  const createPasserbyBookingMemo = useCallback(
+    (data: any) => dispatch(createPasserbyBooking(data)),
+    [dispatch]
+  );
+
+  const clearErrorMemo = useCallback(() => dispatch(clearError()), [dispatch]);
+
+  const setFiltersMemo = useCallback(
+    (filters: BookingFilter) => dispatch(setFilters(filters)),
+    [dispatch]
+  );
+
+  const clearFiltersMemo = useCallback(() => dispatch(clearFilters()), [dispatch]);
+
+  const setCurrentBookingMemo = useCallback(
+    (booking: any) => dispatch(setCurrentBooking(booking)),
+    [dispatch]
+  );
+
+  const resetBookingsMemo = useCallback(() => dispatch(resetBookings()), [dispatch]);
+
   return {
     ...booking,
-    getAllBookings: (keeperId: number, pageNo?: number, pageSize?: number) =>
-      dispatch(getAllBookings({ keeperId, pageNo, pageSize })),
-    searchBookings: (keeperId: number, searchString: string) =>
-      dispatch(searchBookings({ keeperId, searchString })),
-    filterBookings: (keeperId: number, filters: BookingFilter, pageNo?: number, pageSize?: number) =>
-      dispatch(filterBookings({ keeperId, filters, pageNo, pageSize })),
-    getBookingInfo: (bookingId: number) => dispatch(getBookingInfo(bookingId)),
-    createPasserbyBooking: (data: any) => dispatch(createPasserbyBooking(data)),
-    clearError: () => dispatch(clearError()),
-    setFilters: (filters: BookingFilter) => dispatch(setFilters(filters)),
-    clearFilters: () => dispatch(clearFilters()),
-    setCurrentBooking: (booking: any) => dispatch(setCurrentBooking(booking)),
-    resetBookings: () => dispatch(resetBookings()),
+    getAllBookings: getAllBookingsMemo,
+    searchBookings: searchBookingsMemo,
+    filterBookings: filterBookingsMemo,
+    getBookingInfo: getBookingInfoMemo,
+    createPasserbyBooking: createPasserbyBookingMemo,
+    clearError: clearErrorMemo,
+    setFilters: setFiltersMemo,
+    clearFilters: clearFiltersMemo,
+    setCurrentBooking: setCurrentBookingMemo,
+    resetBookings: resetBookingsMemo,
   };
 };
 
