@@ -22,6 +22,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useToast } from '../../hooks/useToast';
 import { bookingApi, BookingInformationResponse } from '../../services/api/endpoints/bookingApi';
 import { managerBookingApi } from '../../services/api/endpoints/managerBookingApi';
+import { CheckInBookingRequest, CheckoutBookingRequest } from '../../types';
 import { keeperSlotApi, GetAvailableSlotsParams } from '../../services/api/endpoints/keeperSlotApi';
 import { floorApi } from '../../services/api/endpoints/floorApi';
 import { Floor, Booking } from '../../types';
@@ -57,6 +58,8 @@ export default function BookingDetailScreen() {
   const [availableSlots, setAvailableSlots] = useState<any[]>([]);
   const [selectedSlotId, setSelectedSlotId] = useState<number | null>(null);
   const [showConfirmChangeSlotDialog, setShowConfirmChangeSlotDialog] = useState(false);
+  const [isCheckingIn, setIsCheckingIn] = useState(false);
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
 
   useEffect(() => {
     if (bookingId > 0) {
@@ -96,6 +99,7 @@ export default function BookingDetailScreen() {
       totalPrice: managerBooking.totalPrice || null,
       unPaidMoney: managerBooking.unPaidMoney || null,
       paymentMethod: managerBooking.paymentMethod || null,
+      parkingId: managerBooking.parkingId || (user as any)?.parkingId || 0,
     } as BookingInformationResponse;
   };
 
@@ -275,6 +279,50 @@ export default function BookingDetailScreen() {
     }
   }, [showSlotSelection, selectedFloorId, booking]);
 
+  const handleCheckIn = async () => {
+    if (!booking) return;
+
+    setIsCheckingIn(true);
+    try {
+      await bookingApi.checkInBooking({ bookingId: booking.id });
+      toast.showSuccess('Check-in thành công');
+      loadBookingInfo(); // Reload to update status
+    } catch (error: any) {
+      toast.showError(error?.message || 'Không thể check-in');
+    } finally {
+      setIsCheckingIn(false);
+    }
+  };
+
+  const handleCheckOut = async () => {
+    if (!booking) return;
+
+    // Get parkingId from booking or user
+    const parkingId = booking.parkingId || (user as any)?.parkingId || 0;
+    if (parkingId === 0) {
+      toast.showError('Không tìm thấy thông tin bãi đỗ');
+      return;
+    }
+
+    setIsCheckingOut(true);
+    try {
+      const checkoutData: CheckoutBookingRequest = {
+        bookingId: booking.id,
+        parkingId: parkingId,
+        totalPrice: booking.totalPrice || null,
+        paymentMethod: booking.paymentMethod || null,
+      };
+
+      await managerBookingApi.checkoutBooking(checkoutData);
+      toast.showSuccess('Check-out thành công');
+      loadBookingInfo(); // Reload to update status
+    } catch (error: any) {
+      toast.showError(error?.message || 'Không thể check-out');
+    } finally {
+      setIsCheckingOut(false);
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'Done':
@@ -420,15 +468,48 @@ export default function BookingDetailScreen() {
       </Card>
 
       {/* Actions */}
-      {!showSlotSelection && (
+      {!showSlotSelection && booking && (
         <Card style={styles.card}>
           <Card.Content>
+            {/* Check-in button: Show when status is Success or Booked */}
+            {(booking.status === 'Success' || booking.status === 'Booked') && (
+              <Button
+                mode="contained"
+                onPress={handleCheckIn}
+                style={styles.actionButton}
+                buttonColor="#2196f3"
+                icon="login"
+                loading={isCheckingIn}
+                disabled={isCheckingIn}
+              >
+                Check-in
+              </Button>
+            )}
+
+            {/* Check-out button: Show when status is Check_In, OverTime, or Check_Out */}
+            {(booking.status === 'Check_In' || 
+              booking.status === 'OverTime' || 
+              booking.status === 'Check_Out') && (
+              <Button
+                mode="contained"
+                onPress={handleCheckOut}
+                style={styles.actionButton}
+                buttonColor="#4caf50"
+                icon="logout"
+                loading={isCheckingOut}
+                disabled={isCheckingOut}
+              >
+                Check-out
+              </Button>
+            )}
+
+            {/* Change slot button: Show for all statuses */}
             <Button
-              mode="contained"
+              mode="outlined"
               onPress={handleChangeSlot}
               style={styles.actionButton}
-              buttonColor="#ff9800"
               icon="swap-horizontal"
+              disabled={isCheckingIn || isCheckingOut}
             >
               Đổi vị trí
             </Button>

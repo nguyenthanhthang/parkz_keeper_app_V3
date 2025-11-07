@@ -21,6 +21,7 @@ export default function BookingListScreen() {
     isLoading,
     error,
     pagination,
+    searchResults,
     getAllBookings,
     searchBookings,
     resetBookings,
@@ -29,7 +30,6 @@ export default function BookingListScreen() {
 
   const [searchString, setSearchString] = useState('');
   const [isSearching, setIsSearching] = useState(false);
-  const [searchResults, setSearchResults] = useState<GetAllBookingByKeeperIdResponse[]>([]);
 
   const keeperId = user?.id || 0;
 
@@ -97,8 +97,10 @@ export default function BookingListScreen() {
 
   // Update isSearching state when searchResults change
   useEffect(() => {
-    if (searchResults.length > 0 && searchString.length >= 2) {
+    if (searchResults && searchResults.length > 0 && searchString.length >= 2) {
       setIsSearching(true);
+    } else if (searchString.length === 0) {
+      setIsSearching(false);
     }
   }, [searchResults, searchString]);
 
@@ -137,22 +139,30 @@ export default function BookingListScreen() {
   }
 
   // Convert search results to booking format
-  const displayData = isSearching && searchString.length > 0 && searchResults.length > 0
-    ? searchResults.map((result: any) => ({
-        id: result.bookingId || result.id,
-        parkingSlotId: result.parkingSlotId || 0,
-        slotName: result.slotName,
-        customerName: result.customerName,
-        customerPhone: result.customerPhone,
-        licensePlate: result.licensePlate,
-        vehicleName: result.vehicleName,
-        vehicleColor: result.vehicleColor,
-        startTime: result.startTime || '',
-        endTime: result.endTime || '',
-        dateBook: result.dateBook || '',
-        status: result.status || 'Pending',
-        createdAt: result.createdAt,
-      }))
+  const displayData = isSearching && searchString.length > 0 && searchResults && searchResults.length > 0
+    ? searchResults.map((result: any) => {
+        // Handle nested structure from API
+        const booking = result?.bookingSearchResult || {};
+        const vehicle = result?.vehicleInforSearchResult || {};
+        const parking = result?.parkingSearchResult || {};
+        const slot = result?.parkingSlotSearchResult || {};
+        
+        return {
+          id: booking?.bookingId || result?.bookingId || result?.id,
+          parkingSlotId: slot?.parkingSlotId || result?.parkingSlotId || 0,
+          slotName: slot?.name || result?.slotName || '',
+          customerName: result?.customerName || result?.userName || result?.guestName || '',
+          customerPhone: result?.customerPhone || result?.phone || result?.guestPhone || '',
+          licensePlate: vehicle?.licensePlate || result?.licensePlate || '',
+          vehicleName: vehicle?.vehicleName || result?.vehicleName || '',
+          vehicleColor: vehicle?.color || result?.vehicleColor || '',
+          startTime: booking?.startTime || result?.startTime || '',
+          endTime: booking?.endTime || result?.endTime || '',
+          dateBook: booking?.dateBook || result?.dateBook || '',
+          status: booking?.status || result?.status || 'Pending',
+          createdAt: booking?.dateBook || result?.createdAt,
+        };
+      })
     : bookings;
 
   // Debug log current list data

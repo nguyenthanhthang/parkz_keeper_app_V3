@@ -9,6 +9,7 @@ export type BookingStackParamList = {
   BookingList: undefined;
   BookingDetail: { bookingId: number; booking?: any }; // booking is optional fallback data
   CreatePasserbyBooking: undefined;
+  QRScanner: undefined;
 };
 
 export type SlotStackParamList = {

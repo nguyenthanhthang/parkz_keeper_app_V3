@@ -13,6 +13,7 @@ import SlotListScreen from '../screens/slot/SlotListScreen';
 import ParkingMapScreen from '../screens/keeper/ParkingMapScreen';
 import ConflictRequestListScreen from '../screens/conflict/ConflictRequestListScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
+import QRScannerScreen from '../screens/keeper/QRScannerScreen';
 
 const Tab = createBottomTabNavigator<TabParamList>();
 
@@ -71,6 +72,11 @@ function BookingStackNavigator() {
         name="BookingDetail" 
         component={BookingDetailScreen}
         options={{ title: 'Chi tiết đặt chỗ' }}
+      />
+      <BookingStack.Screen 
+        name="QRScanner" 
+        component={QRScannerScreen}
+        options={{ title: 'Quét mã QR' }}
       />
     </BookingStack.Navigator>
   );

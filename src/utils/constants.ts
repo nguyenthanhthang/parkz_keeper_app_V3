@@ -43,6 +43,7 @@ export const API_ENDPOINTS = {
   GET_ALL_BOOKINGS: "/booking-management-for-keeper",
   FILTER_BOOKINGS: "/booking-management-for-keeper/filters",
   GET_BOOKING_INFO: "/keeper/booking-Infomation",
+  CHECK_IN_BOOKING: "/customer-booking/check-in",
 
   // Slot
   GET_AVAILABLE_SLOTS: "/keeper/parking-slot/floors/floor/parking-slots",

@@ -24,8 +24,13 @@
       "package": "com.parkz.keeper"
     },
     "plugins": [
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Cho phép ứng dụng truy cập camera để quét mã QR."
+        }
+      ]
     ]
   }
 }
-

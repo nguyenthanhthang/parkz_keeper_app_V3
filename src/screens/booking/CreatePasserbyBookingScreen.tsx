@@ -182,19 +182,13 @@ export default function CreatePasserbyBookingScreen() {
       // Format theo API spec từ KEEPER_ALL_APIs.md
       // API expects: parkingSlotId, vehicleId, startTime, endTime, guestName, guestPhone, guestLicensePlate
       const request: CreateBookingForPasserbyRequest = {
-        BookingForPasserby: {
-          ParkingSlotId: selectedSlotId,
-          EndTime: endDateTime,
-          DateBook: dateBook,
-          GuestName: guestName.trim(),
-          GuestPhone: guestPhone.trim(),
-        },
-        VehicleInformationForPasserby: {
-          LicensePlate: licensePlate.trim(),
-          VehicleName: vehicleName.trim() || undefined,
-          Color: vehicleColor.trim() || undefined,
-          TrafficId: selectedVehicleId,
-        },
+        parkingSlotId: selectedSlotId,
+        vehicleId: selectedVehicleId,
+        startTime: startDateTime,
+        endTime: endDateTime,
+        guestName: guestName.trim(),
+        guestPhone: guestPhone.trim(),
+        guestLicensePlate: licensePlate.trim(),
       };
 
       const bookingId = await bookingApi.createPasserbyBooking(request);

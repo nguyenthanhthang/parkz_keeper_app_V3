@@ -22,20 +22,16 @@ export enum BookingStatus {
   CANCELLED = 'Cancelled'
 }
 
+// API spec: POST /api/booking-management-for-keeper/create/passerby
+// Request format: flat structure (not nested)
 export interface CreateBookingForPasserbyRequest {
-  BookingForPasserby: {
-    ParkingSlotId: number;
-    EndTime: string;
-    DateBook: string;
-    GuestName?: string;
-    GuestPhone?: string;
-  };
-  VehicleInformationForPasserby: {
-    LicensePlate?: string;
-    VehicleName?: string;
-    Color?: string;
-    TrafficId?: number;
-  };
+  parkingSlotId: number;
+  vehicleId: number;
+  startTime: string; // Format: "2024-01-15T08:00:00"
+  endTime: string; // Format: "2024-01-15T18:00:00"
+  guestName: string;
+  guestPhone: string;
+  guestLicensePlate: string;
 }
 
 export interface BookingFilter {
@@ -56,8 +52,15 @@ export interface ApproveBookingRequest {
   approved?: boolean; // Optional, default true
 }
 
+export interface CheckInBookingRequest {
+  bookingId: number;
+}
+
 export interface CheckoutBookingRequest {
   bookingId: number;
+  parkingId: number;
+  totalPrice?: number | null;
+  paymentMethod?: 'tien mat' | 'online' | null;
 }
 
 export interface MarkBookingDoneRequest {

@@ -7,7 +7,8 @@ import {
   BookingFilter,
   BookingStatus,
   ServiceResponse,
-  PaginatedResponse
+  PaginatedResponse,
+  CheckInBookingRequest
 } from '../../../types';
 
 export interface SearchBookingResponse {
@@ -57,6 +58,7 @@ export interface BookingInformationResponse {
   totalPrice?: number | null;
   unPaidMoney?: number | null;
   paymentMethod?: string | null;
+  parkingId?: number;
 }
 
 export const bookingApi = {
@@ -280,6 +282,26 @@ export const bookingApi = {
       } as BookingInformationResponse;
     }
     throw new Error((response as any)?.message || 'Failed to get booking info');
+  },
+
+  /**
+   * Check-in booking
+   * Endpoint: POST /api/customer-booking/check-in
+   * Description: Keeper check-in customer vào bãi đỗ (có thể dùng API Customer)
+   */
+  async checkInBooking(data: CheckInBookingRequest): Promise<string> {
+    const response: any = await apiClient.post(
+      API_ENDPOINTS.CHECK_IN_BOOKING,
+      data
+    );
+
+    const isSuccess = response?.success || response?.isSuccess;
+    if (isSuccess) {
+      // Response is ServiceResponse<string>
+      return response?.data || response?.message || 'Check-in thành công';
+    }
+
+    throw new Error(response?.message || 'Failed to check-in booking');
   },
 };
 

@@ -12,6 +12,7 @@ import {
   ActivityIndicator,
   Button,
   Chip,
+  FAB,
 } from "react-native-paper";
 import { useAuth } from "../../hooks/useAuth";
 import { useNavigation } from "@react-navigation/native";
@@ -140,14 +141,22 @@ export default function KeeperDashboardScreen() {
     </TouchableOpacity>
   );
 
+  const handleOpenQRScanner = () => {
+    // Navigate to QR Scanner in BookingTab stack
+    navigation.navigate('BookingTab' as never, {
+      screen: 'QRScanner',
+    } as never);
+  };
+
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
-      refreshControl={
-        <RefreshControl refreshing={isLoading} onRefresh={handleRefresh} />
-      }
-    >
+    <View style={styles.container}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.contentContainer}
+        refreshControl={
+          <RefreshControl refreshing={isLoading} onRefresh={handleRefresh} />
+        }
+      >
       {/* Header */}
       <View style={styles.header}>
         <Text variant="headlineMedium" style={styles.headerTitle}>
@@ -337,7 +346,14 @@ export default function KeeperDashboardScreen() {
           )}
         </Card.Content>
       </Card>
-    </ScrollView>
+      </ScrollView>
+      <FAB
+        icon="qrcode-scan"
+        style={styles.fab}
+        onPress={handleOpenQRScanner}
+        label="Quét QR"
+      />
+    </View>
   );
 }
 
@@ -345,6 +361,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f5f5f5",
+  },
+  scrollView: {
+    flex: 1,
   },
   contentContainer: {
     padding: 16,
@@ -459,6 +478,13 @@ const styles = StyleSheet.create({
   },
   bookingId: {
     fontWeight: "bold",
+  },
+  fab: {
+    position: 'absolute',
+    margin: 16,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#6200ee',
   },
   statusChip: {
     height: 28,
