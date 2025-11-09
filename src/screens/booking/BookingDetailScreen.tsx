@@ -10,7 +10,6 @@ import {
   ActivityIndicator,
   Button,
   Chip,
-  Surface,
   Divider,
   Dialog,
   Portal,
@@ -22,10 +21,10 @@ import { useAuth } from '../../hooks/useAuth';
 import { useToast } from '../../hooks/useToast';
 import { bookingApi, BookingInformationResponse } from '../../services/api/endpoints/bookingApi';
 import { managerBookingApi } from '../../services/api/endpoints/managerBookingApi';
-import { CheckInBookingRequest, CheckoutBookingRequest } from '../../types';
+import { CheckoutBookingRequest } from '../../types';
 import { keeperSlotApi, GetAvailableSlotsParams } from '../../services/api/endpoints/keeperSlotApi';
 import { floorApi } from '../../services/api/endpoints/floorApi';
-import { Floor, Booking } from '../../types';
+import { Floor } from '../../types';
 import { format, parse } from 'date-fns';
 import { DATE_FORMATS } from '../../utils/constants';
 
